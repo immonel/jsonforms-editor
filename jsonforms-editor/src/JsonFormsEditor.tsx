@@ -27,10 +27,10 @@ import { SelectedElement } from './core/selection';
 import { tryFindByUUID } from './core/util/schemasUtil';
 import {
   defaultEditorRenderers,
-  defaultEditorTabs,
+  defaultPreviewTabs,
   EditorPanel,
 } from './editor';
-import { EditorTab } from './editor/components/EditorPanel';
+import { PreviewTab } from './editor/components/EditorPanel';
 import { PalettePanel } from './palette-panel';
 import { defaultPropertyRenderers, PropertiesPanel } from './properties';
 import {
@@ -54,6 +54,7 @@ const useStyles = makeStyles((theme) => ({
   reflexContainer: {
     flex: '1',
     alignItems: 'stretch',
+    overflow: 'auto',
   },
 }));
 
@@ -61,7 +62,7 @@ interface JsonFormsEditorProps {
   schemaService?: SchemaService;
   schemaProviders: PropertySchemasProvider[];
   schemaDecorators: PropertySchemasDecorator[];
-  editorTabs?: EditorTab[] | null;
+  previewTabs?: PreviewTab[] | null;
   paletteService?: PaletteService;
   editorRenderers?: JsonFormsRendererRegistryEntry[];
   propertyRenderers?: JsonFormsRendererRegistryEntry[];
@@ -87,7 +88,7 @@ export const JsonFormsEditor: React.FC<JsonFormsEditorProps> = ({
   schemaProviders,
   schemaDecorators,
   editorRenderers = defaultEditorRenderers,
-  editorTabs: editorTabsProp = defaultEditorTabs,
+  previewTabs: previewTabsProp = defaultPreviewTabs,
   propertyRenderers = defaultPropertyRenderers,
   header = Header,
   footer = Footer,
@@ -97,7 +98,7 @@ export const JsonFormsEditor: React.FC<JsonFormsEditorProps> = ({
   const [propertiesService] = useState<PropertiesService>(
     propertiesServiceProvider(schemaProviders, schemaDecorators)
   );
-  const editorTabs = editorTabsProp ?? undefined;
+  const previewTabs = previewTabsProp ?? undefined;
   const headerComponent = header ?? undefined;
   const footerComponent = footer ?? undefined;
 
@@ -138,7 +139,7 @@ export const JsonFormsEditor: React.FC<JsonFormsEditorProps> = ({
       <DndProvider backend={Backend}>
         <JsonFormsEditorUi
           editorRenderers={editorRenderers}
-          editorTabs={editorTabs}
+          previewTabs={previewTabs}
           propertyRenderers={propertyRenderers}
           header={headerComponent}
           footer={footerComponent}
@@ -149,14 +150,14 @@ export const JsonFormsEditor: React.FC<JsonFormsEditorProps> = ({
 };
 
 interface JsonFormsEditorUiProps {
-  editorTabs?: EditorTab[];
+  previewTabs?: PreviewTab[];
   editorRenderers: JsonFormsRendererRegistryEntry[];
   propertyRenderers: JsonFormsRendererRegistryEntry[];
   header?: ComponentType;
   footer?: ComponentType;
 }
 const JsonFormsEditorUi: React.FC<JsonFormsEditorUiProps> = ({
-  editorTabs,
+  previewTabs,
   editorRenderers,
   propertyRenderers,
   header,
@@ -164,29 +165,24 @@ const JsonFormsEditorUi: React.FC<JsonFormsEditorUiProps> = ({
 }) => {
   const classes = useStyles();
   return (
-    <Layout HeaderComponent={header} FooterComponent={footer}>
+    <Layout
+      HeaderComponent={header}
+      FooterComponent={footer}
+      drawerContent={<PalettePanel propertyRenderers={propertyRenderers} />}
+    >
       <ReflexContainer
         orientation='vertical'
         className={classes.reflexContainer}
       >
-        <ReflexElement minSize={200} flex={1}>
-          <div className={`${classes.pane} ${classes.leftPane}`}>
-            <PalettePanel />
-          </div>
-        </ReflexElement>
-        <ReflexSplitter propagate />
         <ReflexElement minSize={200} flex={2}>
           <div className={`${classes.pane} ${classes.centerPane}`}>
-            <EditorPanel
-              editorTabs={editorTabs}
-              editorRenderers={editorRenderers}
-            />
+            <EditorPanel editorRenderers={editorRenderers} />
           </div>
         </ReflexElement>
         <ReflexSplitter propagate />
         <ReflexElement minSize={200} flex={1}>
           <div className={`${classes.pane} ${classes.rightPane}`}>
-            <PropertiesPanel propertyRenderers={propertyRenderers} />
+            <PropertiesPanel previewTabs={previewTabs} />
           </div>
         </ReflexElement>
       </ReflexContainer>
