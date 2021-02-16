@@ -63,7 +63,8 @@ const exampleSchema = {
   },
 };
 
-const exampleUischema = undefined;
+const cachedUischema = window.localStorage.getItem('cachedUischema')
+const exampleUischema = cachedUischema ? JSON.parse(cachedUischema) : undefined
 
 export class ExampleSchemaService implements SchemaService {
   getSchema = async () => exampleSchema;

@@ -11,7 +11,7 @@ import { createStyles, makeStyles } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import CloudDownload from '@material-ui/icons/CloudDownload';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useExportSchema, useExportUiSchema } from '../util/hooks';
 import { ExportDialog } from './ExportDialog';
@@ -31,6 +31,18 @@ export const Header: React.FC = () => {
   const [open, setOpen] = useState(false);
   const onClose = () => setOpen(false);
   const openDownloadDialog = () => setOpen(true);
+
+  /* Save the UI schema to browser cache */
+  useEffect(() => {
+    uiSchema
+      ? window.localStorage.setItem('cachedUischema', JSON.stringify(uiSchema, null, 4))
+      : window.localStorage.removeItem('cachedUischema')
+
+    console.log(
+      'UI Schema in browser storage (cachedUischema):\n',
+      window.localStorage.getItem('cachedUischema')
+    )
+  }, [ uiSchema ])
 
   return (
     <AppBar position='static' elevation={0}>
