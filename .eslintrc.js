@@ -1,9 +1,7 @@
 module.exports = {
-  // prettier must always be the last entry to ensure all rules are compatible
-  extends: ['react-app', 'prettier'],
-  plugins: ['header', 'simple-import-sort', 'prettier'],
+  extends: ['react-app'],
+  plugins: ['header', 'simple-import-sort'],
   rules: {
-    'prettier/prettier': 'error',
     // use sorting of simple-import-sort and disable others
     'sort-imports': 'off',
     'import/order': 'off',
