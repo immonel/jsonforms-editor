@@ -15,6 +15,7 @@ import React, { useEffect, useState } from 'react';
 
 import { useExportSchema, useExportUiSchema } from '../util/hooks';
 import { ExportDialog } from './ExportDialog';
+import SaveSwitch from './SaveSwitch';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -31,18 +32,29 @@ export const Header: React.FC = () => {
   const [open, setOpen] = useState(false);
   const onClose = () => setOpen(false);
   const openDownloadDialog = () => setOpen(true);
+  const [saveAutomatically, setSaveAutomatically] = useState(
+    window.localStorage.getItem('saveAutomatically') === 'false' ? false : true
+  )
 
   /* Save the UI schema to browser cache */
   useEffect(() => {
-    uiSchema
-      ? window.localStorage.setItem('cachedUischema', JSON.stringify(uiSchema, null, 4))
-      : window.localStorage.removeItem('cachedUischema')
+    if (saveAutomatically) {
+      uiSchema
+        ? window.localStorage.setItem('cachedUischema', JSON.stringify(uiSchema, null, 4))
+        : window.localStorage.removeItem('cachedUischema')
 
-    console.log(
-      'UI Schema in browser storage (cachedUischema):\n',
-      window.localStorage.getItem('cachedUischema')
-    )
+      console.log(
+        'UI Schema in browser storage (cachedUischema):\n',
+        window.localStorage.getItem('cachedUischema')
+      )
+    }
   }, [ uiSchema ])
+
+  /* Save the state of "save automatically" */
+  useEffect(() => {
+    window.localStorage.setItem('saveAutomatically', String(saveAutomatically))
+    console.log('Automatic saving set to ', saveAutomatically)
+  }, [ saveAutomatically ])
 
   return (
     <AppBar position='static' elevation={0}>
@@ -55,6 +67,10 @@ export const Header: React.FC = () => {
         >
           JSON Forms Editor
         </Typography>
+        <SaveSwitch 
+          checked={saveAutomatically} 
+          onChange={() => setSaveAutomatically(!saveAutomatically)} 
+        />
         <IconButton
           aria-label={`Download`}
           onClick={openDownloadDialog}
